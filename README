@@ -1,0 +1,90 @@
+// Conference Room Booking - LLD + In-memory Java implementation
+// File: README (top section)
+/*
+This textdoc contains:
+1) Low-Level Design (classes, responsibilities, attributes, methods)
+2) ER-style diagram (textual)
+3) Sequence diagrams (textual)
+4) Java implementation (single-file console app with simple in-memory storage)
+
+
+You can copy the Java code into your IDE (Main.java) and run with Java 17+.
+*/
+
+
+// --------------------------
+// 1. Low-Level Design (LLD)
+// --------------------------
+/*
+Core classes and responsibilities:
+
+
+1) User
+- Attributes: id, name, email, role
+- Methods: getters
+- Responsibility: represents an employee who can book rooms.
+
+
+2) ConferenceRoom
+- Attributes: id, name, capacity, location, Set<String> equipment
+- Methods: getters
+- Responsibility: represents a physical room with properties used for search.
+
+
+3) Booking
+- Attributes: id, roomId, userId, start (Instant), end (Instant), createdAt
+- Methods: getters
+- Responsibility: represents a reservation for a room within a time interval.
+
+
+4) RoomRepository (in-memory)
+- Attributes: Map<Long, ConferenceRoom> rooms
+- Methods: addRoom, getRoom, listRooms
+- Responsibility: store and query rooms.
+
+
+5) BookingRepository (in-memory)
+- Attributes: Map<Long, Booking> bookings; Multimap roomId->bookingIds
+- Methods: saveBooking, deleteBooking, findByRoomIdAndRange, findByUser
+- Responsibility: persist bookings and provide range queries for conflicts.
+
+
+6) BookingService
+- Methods: findAvailableRooms(start,end,capacity,equipment), bookRoom(user,roomId,start,end), cancelBooking(user,bookingId), listUserBookings(userId)
+- Responsibility: business rules (no double book, working hours, validations)
+
+
+7) RoomService
+- Methods: addRoom, getRooms
+- Responsibility: manage rooms
+
+
+Business rules encoded in BookingService:
+- No overlapping bookings for same room (conflict if requested interval intersects any existing booking interval).
+- Working hours configurable (e.g., 08:00–18:00 local time). Bookings outside are rejected.
+- start < end and start in future.
+- Only booking owner or admin role can cancel (basic rule implemented).
+- Id generation is simple incremental for demo.
+*/
+
+
+// --------------------------
+// 2. ER Diagram (textual)
+// --------------------------
+/*
+EMPLOYEE (User)
+- id PK
+- name
+- email
+- role
+
+
+ROOM (ConferenceRoom)
+- id PK
+- name
+- capacity
+- location
+- equipment (serialized or separate table)
+
+
+// Single-file demo. Place into Main.java and run.
